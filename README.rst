@@ -3,6 +3,28 @@ Product Match
 
 A test web scraper and NLP classifier using BeautifulSoup and NLTK.
 
+scrape.py Runs the product scraper.
+
+nlp.py runs the classification analysis.
+
+::
+
+    # Install dependencies:
+    pip install -r requirements.txt
+
+    # For usage info:
+    python scrape.py --help
+    python nlp.py --help
+
+    # Run scraper (optionally specify only the categories of interest; 
+    # see the --help option)
+    python scrape.py all
+    # get coffee :)
+
+    # run analysis
+    python nlp.py --category 1
+
+
 Example Classifier Test Output
 ==============================
 
