@@ -11,7 +11,7 @@ import requests
 from urlparse import urlparse, parse_qs
 from time import sleep
 from os.path import abspath, join as pathjoin, exists
-from os import makedirs
+from os import makedirs, stat
 from itertools import chain
 import re
 import logging
@@ -74,7 +74,15 @@ def record_data(title, description, taxonomy, pid, fname=None):
     fpath = pathjoin(base, fname)
     logger.info(u"<record_data> Writing file: {0}".format(fpath))
 
-    #with open(fpath, "w+") as fp:
+    if exists(fpath):
+        if stat(fpath).st_size == 0:
+            logger.warn(u"<record_data> File already exists, but has no data. "
+                        u"Continuing.")
+        else:
+            logger.warn(u"<record_data> File already exists with data. "
+                        u"Skipping.")
+            return
+
     with codecs.open(fpath, "w+", encoding="utf-8") as fp:
         lines = [
                 u"{0}\n".format(u", ".join(taxonomy)),
@@ -169,18 +177,30 @@ def configure_logging(filename="scrape.log"):
 
 
 def fix_chars(string):
+    """
+    Replace with punctuation that we will know to filter.
+
+    TODO: Support full unicode punctuation in NLP pipeline.
+    """
     # Replace lsquo (\x91)
-    fixed = re.sub(u"\x91", u"‘", string)
+    #fixed = re.sub(u"\x91", u"‘", string)
+    fixed = re.sub(u"\x91", u"'", string)
     # Replace rsquo (\x92)
-    fixed = re.sub(u"\x92", u"’", fixed)
+    #fixed = re.sub(u"\x92", u"’", fixed)
+    fixed = re.sub(u"\x92", u"'", fixed)
     # Replace ldquo (\x93)
-    fixed = re.sub(u"\x93", u"“", fixed)
+    #fixed = re.sub(u"\x93", u"“", fixed)
+    fixed = re.sub(u"\x93", u'"', fixed)
     # Replace rdquo (\x94)
-    fixed = re.sub(u"\x94", u"”", fixed)
+    #fixed = re.sub(u"\x94", u"”", fixed)
+    fixed = re.sub(u"\x94", u'"', fixed)
     # Replace ndash (\x96)
-    fixed = re.sub(u"\x96", u"–", fixed)
+    #fixed = re.sub(u"\x96", u"–", fixed)
+    fixed = re.sub(u"\x96", u"-", fixed)
     # Replace mdash (\x97)
-    fixed = re.sub(u"\x97", u"—", fixed)
+    #fixed = re.sub(u"\x97", u"—", fixed)
+    fixed = re.sub(u"\x97", u"-", fixed)
+    # Replace ellipsis char
     fixed = re.sub(u"\x85", u"...", fixed)
     return fixed
 

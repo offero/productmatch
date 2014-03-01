@@ -100,24 +100,24 @@ def test_classification(data, catn=1):
     """
     tokenize_data(data)
     samples = len(data)
-    info ("{0} Data Samples.".format(samples))
+    print ("{0} Data Samples.".format(samples))
     train_samples = int(samples * 0.9)
-    info ("Generating features...")
+    print ("Generating features...")
     classified_features = features(data, catn)
     train_set = classified_features[:train_samples]
     test_set = classified_features[train_samples:]
-    info ("Training Classifier...")
+    print ("Training Classifier...")
     classifier = train_classifier(train_set)
-    info ("Testing Accuracy...")
+    print ("Testing Accuracy...")
     accuracy = nltk.classify.accuracy(classifier, test_set)
     classifier.show_most_informative_features(25)
-    info ("Accuracy: {0}".format(accuracy))
-    info ("A few examples: ")
+    print ("Accuracy: {0}".format(accuracy))
+    print ("A few examples: ")
     for i in range(20):
         doc = random.choice(classified_features)
         prediction = classifier.classify(doc[0])
         actual = doc[1]
-        info ("Actual: {0} | Prediction: {1}".format(actual, prediction))
+        print ("Actual: {0} | Prediction: {1}".format(actual, prediction))
 
     return classifier, classified_features
 
@@ -136,15 +136,20 @@ from scrape import fix_chars
 def load_data(basepath):
     data = []
     def load_file(fname):
-        #print("Loading data from: {0}".format(fname))
+        #debug("Loading data from: {0}".format(fname))
         with codecs.open(fname, encoding='utf-8') as fp:
             lines = fix_chars(fp.read()).splitlines()
+            #lines = fp.read().splitlines()
 
-        cats = [c.strip() for c in lines[0].split(",")]
-        pid = int(lines[1].strip())
-        title = lines[2]
-        desc = lines[3]
-        data.append([cats, pid, title, desc])
+        if len(lines) > 3:
+            cats = [c.strip() for c in lines[0].split(",")]
+            pid = int(lines[1].strip())
+            title = lines[2]
+            desc = lines[3]
+            data.append([cats, pid, title, desc])
+        else:
+            warn("Invalid input file: {0}. Lines: {1}. Skipping."
+                    .format(fname, len(lines)))
 
     def cb(arg, dirname, fnames):
         #print("Walking: {0}".format(dirname))
@@ -176,14 +181,14 @@ def main():
 
     (option, args) = parser.parse_args()
 
-    if 1 > option.category > 3:
+    if option.category not in range(1,4):
         parser.error("Invalid category depth.")
 
-    info ("Loading data from directory: {0}".format(option.datapath))
+    print ("Loading data from directory: {0}".format(option.datapath))
     data = load_data(option.datapath)
     random.shuffle(data)  # in place random shuffle
-    info(("Classifying product descriptions up to a product category "
-           "hierarchy depth of {0}.").format(option.category))
+    print (("Classifying product descriptions up to a product category "
+            "hierarchy depth of {0}.").format(option.category))
     test_classification(data, option.category-1)
 
 
