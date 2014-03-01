@@ -3,6 +3,10 @@ Product Match
 
 A test web scraper and NLP classifier using BeautifulSoup and NLTK.
 
+This test program uses product descriptions and category hierarchies from
+Macys and trains a classifier that can predict the category for a given
+product description.
+
 scrape.py Runs the product scraper.
 
 nlp.py runs the classification analysis.
